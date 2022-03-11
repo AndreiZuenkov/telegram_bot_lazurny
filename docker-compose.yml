@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres:11
+    environment:
+      POSTGRES_DB: "lazurnydb"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "s"
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+
+  pgadmin:
+    container_name: pgadmin_conteiner
+    image: dpage/pgadmin4:5.7
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "s@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "s"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    networks:
+      - postgres
+
+
+networks:
+  postgres:
+    driver: bridge
+
