@@ -1,5 +1,6 @@
 package com.sadstatue.telegrambot.bot;
 
+import com.sadstatue.telegrambot.service.BotService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
@@ -19,6 +20,11 @@ public class TelegramBot extends TelegramWebhookBot {
     @Value("${bot.botUserName}")
     private String botUserName;
 
+    private BotService botService;
+
+    public TelegramBot(BotService botService) {
+        this.botService = botService;
+    }
 
     @Override
     public String getBotUsername() {
@@ -33,10 +39,7 @@ public class TelegramBot extends TelegramWebhookBot {
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
 
-
-        SendMessage message = new SendMessage(Long.toString(update.getMessage().getChatId()), "Привет " + update.getMessage().getFrom().getFirstName());
-
-        return message;
+        return botService.checkUpdate(update);
 
     }
 

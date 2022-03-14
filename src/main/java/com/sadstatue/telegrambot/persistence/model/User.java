@@ -23,8 +23,12 @@ public class User {
     @Column(name = "first_name")
     private String firstName;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "apartment_id")
-    private Apartment apartment;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "apartment_id")
+//    private Apartment apartment;
+
+    private int house;
+
+    private int apartmentNumber;
 
 }
