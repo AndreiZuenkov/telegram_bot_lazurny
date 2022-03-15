@@ -28,9 +28,10 @@ public class UserService {
     }
 
 
-    public SendMessage chekUser(Update update) {
+    public SendMessage chekUser1(Update update) {
 
         User userFromDb = userRepo.findByChatId(update.getMessage().getChatId());
+
 
         if (userFromDb != null) {
             if (userFromDb.getHouse() == 0) {
@@ -44,6 +45,58 @@ public class UserService {
         return new SendMessage(Long.toString(update.getMessage().getChatId()), greetingMessage);
 
     }
+
+
+    public SendMessage chekUser(Update update) {
+
+        User userFromDb = null;
+
+        if (update.getMessage() != null) {
+            userFromDb = userRepo.findByChatId(update.getMessage().getChatId());
+        } else if (update.getCallbackQuery() != null) {
+            userFromDb = userRepo.findByChatId(update.getCallbackQuery().getMessage().getChatId());
+        }
+
+        if (userFromDb == null) {
+
+            createNewUser(update);
+            return addHouseNumber(update);
+
+        } else if (update.getCallbackQuery() != null) {
+
+            return chekCallbackQuery(update);
+
+        } else if (update.getMessage() !=null) {
+
+            return chekMessage(update);
+        }
+
+        return null;
+    }
+
+    private SendMessage chekMessage(Update update) {
+
+        User userFromDb=userRepo.findByChatId(update.getMessage().getChatId());
+
+        return setApartmentNumber(update);
+    }
+
+    private SendMessage chekCallbackQuery(Update update) {
+
+//        User userFromDb=userRepo.findByChatId(update.getCallbackQuery().getMessage().getChatId());
+        User userFromDb = userRepo.findByChatId(update.getCallbackQuery().getFrom().getId());
+
+        if (userFromDb != null && userFromDb.getHouse() == 0) {
+            setHouseNumber(update);
+            return addApartmentNumber(update);
+        } else if (userFromDb != null && userFromDb.getApartmentNumber() == 0) {
+            setApartmentNumber(update);
+            return new SendMessage(Long.toString(update.getCallbackQuery().getMessage().getChatId()), "Дальше выскакивает нижнее меню и погнали");
+        }
+
+        return null;
+    }
+
 
     private void createNewUser(Update update) {
 
@@ -98,7 +151,7 @@ public class UserService {
         return message;
     }
 
-    public SendMessage setAdditionalInformation(Update update) {
+    public SendMessage setHouseNumber(Update update) {
 
         User userFromDb = userRepo.findByChatId(update.getCallbackQuery().getMessage().getChatId());
 
@@ -123,11 +176,34 @@ public class UserService {
 
     private SendMessage addApartmentNumber(Update update) {
 
-        SendMessage message=new SendMessage();
+        SendMessage message = new SendMessage();
 
         message.setChatId(Long.toString(update.getCallbackQuery().getMessage().getChatId()));
         message.setText("Введите номер вашей квартиры");
 
-        return  message;
+        return message;
+    }
+
+    public SendMessage setApartmentNumber(Update update) {
+
+        SendMessage message = new SendMessage();
+
+        message.setChatId(Long.toString(update.getMessage().getChatId()));
+
+        User userFromDb = userRepo.findByChatId(update.getMessage().getChatId());
+
+        if (userFromDb != null && userFromDb.getApartmentNumber() == 0) {
+
+            userFromDb.setApartmentNumber(Integer.parseInt(update.getMessage().getText()));
+        } else {
+            message.setText("Вы уже вводили номер квартиры ранее или что-то пошло не так");
+            return message;
+        }
+
+        userRepo.save(userFromDb);
+
+        message.setText("Вы успешно заполнили всю необходимую информацию");
+
+        return message;
     }
 }
