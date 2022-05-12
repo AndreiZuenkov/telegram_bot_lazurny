@@ -38,7 +38,8 @@ public class TelegramBot extends TelegramWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-
+        Double integer=125.00;
+        Object ob=new String();
         return botService.checkUpdate(update);
 
     }
